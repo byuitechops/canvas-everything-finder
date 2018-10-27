@@ -1,0 +1,17 @@
+{
+  "name": "optimized-canvas-term-finder",
+  "version": "1.0.0",
+  "description": "A tool to find courses and search them for specified terms.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Aaron Shiffler",
+  "license": "MIT",
+  "dependencies": {
+    "async": "^2.6.1",
+    "canvas-api-wrapper": "^3.3.4",
+    "d3-dsv": "^1.0.10",
+    "inquirer": "^6.2.0"
+  }
+}
