@@ -40,7 +40,7 @@ module.exports = function getCourses(course, searchPhrase) {
 
     // If no matches were found in this course, tag the outputTemplate 
     // onto the output so that the course is represented on the output
-    if (allMatches.length === 0) allMatches.push(outputTemplate);
+    if (allMatches.length === 0) allMatches.push(course);
 
     return allMatches;
 };
