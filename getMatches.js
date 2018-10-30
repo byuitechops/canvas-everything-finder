@@ -32,7 +32,7 @@ module.exports = function getCourses(course, searchPhrase) {
     let allMatches = apiCalls.reduce( async (acc, apiCall) => {
         var matches = [];
         await canvas.get(apiCall) // Get Items from API Call
-            .then( (canvasItems) => { matches = deepSearch(searchPhrase, canvasItems); }) // Run Stuff through deepSearcher
+            .then( (canvasItems) => {matches = deepSearch(searchPhrase, canvasItems); }) // Run Stuff through deepSearcher
             .catch( (error) => {matches = {errors: error};} ); // "Don't stop the train" -Josh
         matches = Object.assign(course, matches); // Make copy, letting new data overwrite old data
         return acc.concat(matches); // Flatten matches, and concat to accumulator
