@@ -7,6 +7,7 @@ module.exports = function deepSearch(searchPhrase, searchItem) {
     var item = [].concat(searchItem);
     
     function compareValues (searchPhrase, searchValue) {
+        if (typeof searchValue === 'undefined') searchValue = typeof undefined;
         let search = typeof searchPhrase === 'string' ? searchPhrase : searchPhrase.toString();
         let value = typeof searchValue === 'string' ? searchValue : searchValue.toString();
         let searchExp = new RegExp (search, 'i');
@@ -21,7 +22,7 @@ module.exports = function deepSearch(searchPhrase, searchItem) {
         }
     }
     
-    return Object.keys(searchItem).reduce( (acc, key) => {
+    return Object.keys(item).reduce( (acc, key) => {
         recursiveSearch(item[key], acc, [].concat(key));
         return acc;
     }, [] );

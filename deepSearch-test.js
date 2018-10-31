@@ -54,6 +54,8 @@ deepItem = {
     }
 };
 
+deepItem = 4;
+
 
 var ds = deepSearch(searchTerm, deepItem);
 console.log(ds);
