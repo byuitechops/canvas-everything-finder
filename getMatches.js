@@ -2,20 +2,26 @@
  * Gets all the course's item details, flatten them, then search through
  * each item searching for a match
  *************************************************************************/
-const asynclib = require('async');
+const path = require('path');
 const canvas = require('canvas-api-wrapper');
-const deepSearch = require('./deepSearch');
+const deepSearch = require( path.join(__dirname, '/deepSearch') );
 
 module.exports = function getCourses(course, searchPhrase) {
     // This var is temporarily here so that I know what I want my eventual output to look like
-    course = Object.assign(course, {
-        matchId: null,
-        matchType: null,
-        matchTitle: null,
-        matchIntralink: null,
-        matchExtralink: null,
+    course = Object.assign({}, {
+        course_id: course.id,
+        course_code: course.course_code,
+        course_name: course.name,
+        match_apiCall: null,
+        match_location: null,
+        match_value: null,
+        match_Id: null,
+        match_Type: null,
+        match_Title: null,
+        match_Intralink: null,
+        match_Extralink: null,
         searchPhrase: searchPhrase,
-        errors: 'No Matches',
+        errors: null,
     });
 
     // Define API Calls Here
@@ -34,6 +40,10 @@ module.exports = function getCourses(course, searchPhrase) {
         await canvas.get(apiCall) // Get Items from API Call
             .then( (canvasItems) => {matches = deepSearch(searchPhrase, canvasItems); }) // Run Stuff through deepSearcher
             .catch( (error) => {matches = {errors: error};} ); // "Don't stop the train" -Josh
+        // TODO Map matches into an object that can be used for output
+        matches.map(match => {
+            var foundItem = match.path[0];
+        });
         matches = Object.assign(course, matches); // Make copy, letting new data overwrite old data
         return acc.concat(matches); // Flatten matches, and concat to accumulator
     }, [] );

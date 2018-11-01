@@ -26,4 +26,5 @@ module.exports = function deepSearch(searchPhrase, searchItem) {
         recursiveSearch(item[key], acc, [].concat(key));
         return acc;
     }, [] );
+
 };
