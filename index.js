@@ -1,10 +1,11 @@
 
+const path = require('path');
 const asynclib = require('async');
 const d3 = require('d3-dsv');
-const cli = require('./cli');
-const getCourses = require('./getCourses');
-const getMatchesAsyncLib = require('./getMatchesAsyncLib');
-const getMemoryStats = require('./getMemoryStats');
+const cli                = require( path.join(__dirname, '/cli'               ) );
+const getCourses         = require( path.join(__dirname, '/getCourses'        ) );
+const getMatchesAsyncLib = require( path.join(__dirname, '/getMatchesAsyncLib') );
+const getMemoryStats     = require( path.join(__dirname, '/getMemoryStats'    ) );
 
 // Do stuff over and over forever
 async function recursion(functions = []) {
@@ -34,9 +35,9 @@ async function main() {
     var courseList = await getCourses(userInput.inputType, userInput.courseData);
     testing([getMemoryStats]);
     console.log(`\nYou have found ${courseList.length} courses!\n`);
-    testing([recursion([console.clear, getMemoryStats])]);
+    recursion([/* console.clear,  */getMemoryStats]);
     asynclib.mapLimit(courseList, 1, async (course, callback) => await getMatchesAsyncLib(course, userInput.searchPhrase, callback), (err, collection) => {
-        d3.csvFormat(collection, [
+        /* d3.csvFormat(collection, [
             'courseId',
             'courseCode',
             'courseName',
@@ -47,7 +48,7 @@ async function main() {
             'matchExtralink',
             'searchPhrase',
             'errors',
-        ]);
+        ]); */
     });
 }
 
