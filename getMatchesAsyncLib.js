@@ -6,6 +6,6 @@ module.exports = async function getCourses(course, searchPhrase, callback) {
     const getMatches = require('./getMatches');
     await getMatches(course, searchPhrase)
         .then( (matches) => callback(null, matches) )
-        .catch( (error) => callback(null, Object.assign(course, error)) );
+        .catch( (error) => callback(null, {course: course, item: {}, matchData: {}, searchPhrase: searchPhrase, apiCall: '', message: error} ) );
     return;
 };
