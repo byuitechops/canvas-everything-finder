@@ -80,7 +80,7 @@ module.exports = [
         type: 'input',
         message: 'Enter the path to the csv to read from'.padEnd(padding),
         suffix: ':',
-        default: '',
+        default: './input.csv',
         filter: (answer, answersHash) => {
             let output = path.resolve(answer);
             answersHash[courseData] = answer;
@@ -91,9 +91,9 @@ module.exports = [
         // (General) Where to output the file
         name: 'saveLocation',
         type: 'input',
-        message: 'Where to save your csv? (Default: ./reports)'.padEnd(padding),
+        message: 'Where to save your csv? (Default: ./reports/report.csv)'.padEnd(padding),
         suffix: ':',
-        default: './reports',
+        default: './reports/report.csv',
         filter: (input) => path.resolve(input)
     },
 ];

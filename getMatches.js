@@ -1,56 +1,45 @@
 /*************************************************************************
- * Gets all the course's item details, flatten them, then search through
+ * Gets all the course's item details, then deep-search through
  * each item searching for a match
  *************************************************************************/
 const path = require('path');
 const canvas = require('canvas-api-wrapper');
-const deepSearch = require( path.join(__dirname, '/deepSearch') );
+const deepSearch = require( path.join(__dirname, '/deepSearch.js') );
+const limitObjectKeys = require( path.join(__dirname, '/limitObjectKeys.js') );
 
-module.exports = function getCourses(course, searchPhrase) {
-    // This var is temporarily here so that I know what I want my eventual output to look like
-    course = Object.assign({}, {
-        course_id: course.id,
-        course_code: course.course_code,
-        course_name: course.name,
-        match_apiCall: null,
-        match_location: null,
-        match_value: null,
-        match_Id: null,
-        match_Type: null,
-        match_Title: null,
-        match_Intralink: null,
-        match_Extralink: null,
-        searchPhrase: searchPhrase,
-        errors: null,
-    });
+function makeOutputObject (courseObject, itemObject, matchData, searchPhrase, apiCall, message = '') {
+    return {
+        course       : courseObject, 
+        item         : itemObject, 
+        matchData    : matchData, 
+        searchPhrase : searchPhrase, 
+        apiCall      : apiCall, 
+        message      : message,
+    };
+}
 
-    // Define API Calls Here
+module.exports = async function getCourseItems(course, searchPhrase) {
+    // Define API Calls Here. Listed as an object to have readable named values
     var canvasApiCalls = {
         getAssignments: `/api/v1/courses/${course.id}/assignments`,
     };
 
-    // Decide which ones to run here
-    var apiCalls = [
-        canvasApiCalls.getAssignments,
-    ];
-
     // Core: Search, scan, report
-    let allMatches = apiCalls.reduce( async (acc, apiCall) => {
-        var matches = [];
-        await canvas.get(apiCall) // Get Items from API Call
-            .then( (canvasItems) => {matches = deepSearch(searchPhrase, canvasItems); }) // Run Stuff through deepSearcher
-            .catch( (error) => {matches = {errors: error};} ); // "Don't stop the train" -Josh
-        // TODO Map matches into an object that can be used for output
-        matches.map(match => {
-            var foundItem = match.path[0];
-        });
-        matches = Object.assign(course, matches); // Make copy, letting new data overwrite old data
-        return acc.concat(matches); // Flatten matches, and concat to accumulator
-    }, [] );
+    var allMatches = [];
+    var outputKeys = ['id','name','html_url',];
+    for (let apiCall in canvasApiCalls) { // for in opted for to avoid having to do: promise.all(array.method(async () => {} ))
+        let canvasData = await canvas.get(canvasApiCalls[apiCall]);
+        allMatches = canvasData.reduce( (acc, data) => {
+            let matches = deepSearch(data, searchPhrase);
+            let outputData = limitObjectKeys(data, outputKeys);
+            matches.forEach( (match) => acc = acc.concat( makeOutputObject(course, outputData, match, searchPhrase, canvasApiCalls[apiCall]) ) );
+            return acc;
+        }, []);
+    }
 
-    // If no matches were found in this course, tag the outputTemplate 
+    // If no matches were found in this course, tag the outputTemplate
     // onto the output so that the course is represented on the output
-    if (allMatches.length === 0) allMatches.push(course);
+    if (allMatches.length === 0) allMatches.push( makeOutputObject(course, {}, {}, searchPhrase, '') );
 
     return allMatches;
 };
