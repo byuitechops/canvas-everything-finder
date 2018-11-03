@@ -29,46 +29,85 @@ async function main() {
     console.log(`\nYou have found ${courseList.length} courses!\n`);
 
     var matchReport = [];
-    for (let course in courseList) {
-        await getMatches(courseList[course], userInput.searchPhrase)
-            .then( (matchData) => {console.log(matchData); matchReport = matchReport.concat(matchData);} )
-            .catch( (error) => { matchReport = matchReport.concat( {course: course, item: {}, matchData: {}, searchPhrase: userInput.searchPhase, apiCall: '', message: error} );  } );
-        console.log(`${courseCounter}/${courseList.length}, ${courseList[course]['name']} Completed`);
+    function* parallelQueue () {
+        if ( parallelQueue.queueLimit   === undefined || typeof parallelQueue.queueLimit   !== 'number') parallelQueue.queueLimit = 1000;
+        if ( parallelQueue.currentQueue === undefined || typeof parallelQueue.currentQueue !== 'number') parallelQueue.currentQueue = 0;
+        for (let course in courseList) {
+            while (parallelQueue.currentQueue >= parallelQueue.queueLimit) {
+                yield parallelQueue.currentQueue;
+            }
+            ++parallelQueue.currentQueue;
+            getMatches(courseList[course], userInput.searchPhrase)
+                .then( (matchData) => {
+                    matchReport = matchReport.concat(matchData);
+                    --parallelQueue.currentQueue;
+                    console.log(`${++courseCounter}/${courseList.length}, ${courseList[course]['name']} Completed`);
+                } )
+                .catch( (error) => { 
+                    matchReport = matchReport.concat( {course: course, item: {}, matchData: {}, searchPhrase: userInput.searchPhase, apiCall: '', message: error} );
+                    --parallelQueue.currentQueue;
+                    console.log(`${++courseCounter}/${courseList.length}, ${courseList[course]['name']} Completed`);
+                } );
+        }
+    }
+    var pqVar = parallelQueue();
+    async function recursiveTimeout () {
+        await setTimeout(async () => {
+            if (pqVar.next().value !== undefined) {
+                // console.log(`${parallelQueue.currentQueue}/${parallelQueue.queueLimit}`);
+                await recursiveTimeout();
+            } else if (pqVar.next().value === undefined && parallelQueue.currentQueue <= 0) {
+                console.log('Beginning Closing Steps...');
+                closingSteps();
+            } else {
+                await setTimeout(async () => {
+                    console.log(`There are ${parallelQueue.currentQueue} jobs still running`);
+                    console.log('Please wait... We are preping the information to be written to your hard drive...');
+                    console.log();
+                    await recursiveTimeout();
+                }, 5000);
+            }
+        }, 10);
     }
 
+    await recursiveTimeout();
 
-    matchReport = matchReport.map(item => {
-        return {
-            'course.id': item.course.id,
-            'course.course_code': item.course.course_code,
-            'course.name': item.course.name,
-            'item.id': item.item.id,
-            'item.name': item.name,
-            'item.html_url': item.html_url,
-            'matchData.match': item.matchData.match,
-            'matchData.path': JSON.stringify(item.matchData.path),
-            'searchPhrase': item.searchPhrase,
-            'apiCall': item.apiCall,
-            'message': item.message,
-        };
-    });
-    var csvFormatted = d3.csvFormat(matchReport, [
-        'course.id',
-        'course.course_code',
-        'course.name',
-        'item.id',
-        'item.name',
-        'item.html_url',
-        'matchData.match',
-        'matchData.path',
-        'searchPhrase',
-        'apiCall',
-        'message',
-    ]);
 
-    fs.writeFileSync(userInput.saveLocation, csvFormatted);
+    function closingSteps () {
+        matchReport = matchReport.map(item => {
+            return {
+                'course.id': item.course.id,
+                'course.course_code': item.course.course_code,
+                'course.name': item.course.name,
+                'item.id': item.item.id,
+                'item.name': item.name,
+                'item.html_url': item.html_url,
+                'matchData.match': item.matchData.match,
+                'matchData.path': JSON.stringify(item.matchData.path),
+                'searchPhrase': item.searchPhrase,
+                'apiCall': item.apiCall,
+                'message': item.message,
+            };
+        });
+        var csvFormatted = d3.csvFormat(matchReport, [
+            'course.id',
+            'course.course_code',
+            'course.name',
+            'item.id',
+            'item.name',
+            'item.html_url',
+            'matchData.match',
+            'matchData.path',
+            'apiCall',
+            'message',
+            'searchPhrase',
+        ]);
 
-    console.log('THE PROGRAM HAS FINISHED RUNNING. YOU CAN NOW SAFELY EXIT');
+        fs.writeFileSync(userInput.saveLocation, csvFormatted);
+
+        console.log('THE PROGRAM HAS FINISHED RUNNING. YOU CAN NOW SAFELY EXIT');
+    }
+    
 
     /* asynclib.mapLimit(courseList, 1, async (course, callback) => await getMatchesAsyncLib(course, userInput.searchPhrase, callback), (err, collection) => {
         console.log(collection);
