@@ -15,7 +15,7 @@ const repeatOnInterval   = require( './repeatOnInterval.js'  );
 
 // TODO Abstract cli input and csv output parts of this function and let them be run in a true index file so that this can be more modular
 async function main() {
-    var counter1 = 0;
+    var queueLimit = 500;
     var courseCounter = 0;
     var userInput = await cli();
     // repeatOnInterval([getMemoryStats], 5000); // Start Tracking Memory Usage
@@ -37,7 +37,7 @@ async function main() {
         } ); 
     }
 
-    await promiseQueueLimit(courseList, getMatchesAdapter, 1, closingSteps);
+    await promiseQueueLimit(courseList, getMatchesAdapter, queueLimit, closingSteps);
 
     function closingSteps (err, matches) {
         matches = matches.map(item => {
