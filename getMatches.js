@@ -22,6 +22,9 @@ module.exports = async function getCourseItems(course, searchPhrase) {
     // Define API Calls Here. Listed as an object to have readable named values
     var canvasApiCalls = {
         getAssignments: `/api/v1/courses/${course.id}/assignments`,
+        listPages: `/api/v1/courses/${course.id}/pages`,
+        listModules: `/api/v1/courses/${course.id}/modules?include[]=items`,
+        // listQuizzes: `/api/v1/courses/${course.id}/quizzes`
     };
 
     // Core: Search, scan, report
