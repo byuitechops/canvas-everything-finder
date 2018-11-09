@@ -32,15 +32,15 @@ module.exports = [
         suffix: ':',
         default: 'external_tools/sessionless',
     },
-    {
-        // (General) Get Subdomain
-        name: 'subdomain',
-        type: 'list',
-        message: 'Which subdomain would you like to search?'.padEnd(padding),
-        suffix: ':',
-        choices: (answersHash) => inquirerObjectToArray(answersHash, subdomains),
-        default: subdomains.byui,
-    },
+    // {
+    //     // (General) Get Subdomain
+    //     name: 'subdomain',
+    //     type: 'list',
+    //     message: 'Which subdomain would you like to search?'.padEnd(padding),
+    //     suffix: ':',
+    //     choices: (answersHash) => inquirerObjectToArray(answersHash, subdomains),
+    //     default: subdomains.byui,
+    // },
     {
         // (Get Courses) Get Input Type
         name: 'inputType',
@@ -64,15 +64,15 @@ module.exports = [
             return answer;
         },
     },
-    {
-        // (Get Courses Options) Account Number Follow-Up Question: to include the subaccounts or not
-        name: 'inludeNestedAccounts',
-        when: (answersHash) => answersHash.inputType === inputTypeAnswerTransformer[inputType.accountNumber],
-        type: 'confirm',
-        message: 'Would you like to search nested accounts?'.padEnd(padding),
-        suffix: ':',
-        default: false,
-    },
+    // {
+    //     // (Get Courses Options) Account Number Follow-Up Question: to include the subaccounts or not
+    //     name: 'inludeNestedAccounts',
+    //     when: (answersHash) => answersHash.inputType === inputTypeAnswerTransformer[inputType.accountNumber],
+    //     type: 'confirm',
+    //     message: 'Would you like to search nested accounts?'.padEnd(padding),
+    //     suffix: ':',
+    //     default: false,
+    // },
     {
         // (Get Courses) Get CSV Location
         name: 'csvLocation',

@@ -28,6 +28,7 @@ module.exports = function promiseQueueLimit (iteratee, asyncFunction, queueLimit
                 } );
         }
         while (parallelQueue.currentQueue > 0) {
+            // if (parallelQueue < 5 || parallelQueue % 10 === 0) console.log(`Please wait, there are ${parallelQueue.currentQueue} more courses still processing...`);
             yield parallelQueue.currentQueue;
         }
         callback(null, outputData);
