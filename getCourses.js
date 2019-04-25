@@ -25,7 +25,7 @@ module.exports = function getListOfCourses(inputType, pieceOfData) {
     }
 
     // If new keys need to be included, just add them to the outputKeys array.
-    var outputKeys = ['name', 'id', 'course_code'];
+    var outputKeys = ['name', 'id', 'course_code', 'sis_course_id'];
     
     var getCourses = {
         fromCsv: getCoursesFromCsv,
