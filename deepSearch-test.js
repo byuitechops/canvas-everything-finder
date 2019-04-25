@@ -150,9 +150,11 @@ var deepItem2 = [{
 
 // console.log(deepSearch(deepItem2, searchTerm2))
 
-async function searchTest3() {
-    var deepItem3 = await canvas.get(`/api/v1/courses/39264/assignments`);
-    var r = deepSearch(deepItem3, searchTerm2);
-    console.log(r);
-}
-searchTest3();
+// async function searchTest3(cid) {
+//     var deepItem3 = await canvas.get(`/api/v1/courses/${cid}/assignments`);
+//     var r = deepSearch(deepItem3, searchTerm2);
+//     console.log(r);
+// }
+// searchTest3(39264);
+
+// require('./_cids.json').forEach(cid => searchTest3(cid))
