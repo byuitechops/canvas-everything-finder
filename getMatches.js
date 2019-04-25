@@ -29,7 +29,7 @@ module.exports = async function getCourseItems(course, searchPhrase) {
 
     // Core: Search, scan, report
     var allMatches = [];
-    var outputKeys = ['id','name','html_url',];
+    var outputKeys = ['id','name','html_url','title','external_url','content_id'];
     for (let apiCall in canvasApiCalls) { // for in opted for to avoid having to do: promise.all(array.method(async () => {} ))
         let canvasData = await canvas.get(canvasApiCalls[apiCall]);
         allMatches = canvasData.reduce( (acc, data) => {

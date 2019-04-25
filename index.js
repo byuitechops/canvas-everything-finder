@@ -40,34 +40,25 @@ async function main() {
     await promiseQueueLimit(courseList, getMatchesAdapter, queueLimit, closingSteps);
 
     function closingSteps (err, matches) {
-        matches = matches.map(item => {
+        matches = matches.map(match => {
             return {
-                'course.id': item.course.id,
-                'course.course_code': item.course.course_code,
-                'course.name': item.course.name,
-                'item.id': item.item.id,
-                'item.name': item.name,
-                'item.html_url': item.html_url,
-                'matchData.match': item.matchData.match,
-                'matchData.path': JSON.stringify(item.matchData.path),
-                'searchPhrase': item.searchPhrase,
-                'apiCall': item.apiCall,
-                'message': item.message,
+                'course.id': match.course.id,
+                'course.course_code': match.course.course_code,
+                'course.name': match.course.name,
+                'course.sis_course_id': match.course.sis_course_id,
+                'item.id': match.item.id,
+                'item.name': match.item.name,
+                'item.html_url': match.item.html_url,
+                'item.title': match.item.title,
+                'item.external_url': match.item.external_url,
+                'matchData.match': match.matchData.match,
+                'matchData.path': JSON.stringify(match.matchData.path),
+                'apiCall': match.apiCall,
+                'message': match.message,
+                'searchPhrase': match.searchPhrase,
             };
         });
-        var csvFormatted = d3.csvFormat(matches, [
-            'course.id',
-            'course.course_code',
-            'course.name',
-            'item.id',
-            'item.name',
-            'item.html_url',
-            'matchData.match',
-            'matchData.path',
-            'apiCall',
-            'message',
-            'searchPhrase',
-        ]);
+        var csvFormatted = d3.csvFormat(matches);
 
         fs.writeFileSync(userInput.saveLocation, csvFormatted);
 
