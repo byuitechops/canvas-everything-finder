@@ -7,6 +7,7 @@ const d3 = require('d3-dsv');
 const cli = require('./cli.js');
 const getCourses = require('./getCourses.js');
 const getMatches = require('./getMatches.js');
+const objectCrawler = require('./objectCrawler.js');
 const getMemoryStats = require('./getMemoryStats.js');
 const promiseQueueLimit = require('./promiseQueueLimit.js');
 const repeatOnInterval = require('./repeatOnInterval.js');
@@ -40,6 +41,7 @@ async function main() {
     await promiseQueueLimit(courseList, getMatchesAdapter, queueLimit, closingSteps);
 
     function closingSteps (err, matches) {
+        debugger;
         matches = matches.map(match => {
             return {
                 'course.id': match.course.id,
@@ -48,9 +50,12 @@ async function main() {
                 'course.sis_course_id': match.course.sis_course_id,
                 'item.id': match.item.id,
                 'item.name': match.item.name,
-                'item.html_url': match.item.html_url,
-                'item.title': match.item.title,
-                'item.external_url': match.item.external_url,
+                'item.items_url': match.item.items_url,
+
+                'item.items.content_id': objectCrawler(match.item, match.matchData.path.slice(0,-1),).content_id,
+                'item.items.title': objectCrawler(match.item, match.matchData.path.slice(0,-1),).title,
+                'item.items.external_url': objectCrawler(match.item, match.matchData.path.slice(0,-1),).external_url,
+
                 'matchData.match': match.matchData.match,
                 'matchData.path': JSON.stringify(match.matchData.path),
                 'apiCall': match.apiCall,
