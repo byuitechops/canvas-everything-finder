@@ -29,16 +29,15 @@ module.exports = async function getCourseItems(course, searchPhrase) {
     // Define API Calls Here. Listed as an object to have readable named values
     var canvasApiCalls = [
         // `/api/v1/courses/${course.id}/modules/?include[]=items`,
-        // ...await getSubItems(course.id, 'id', (initialId) => `/api/v1/courses/${initialId}/modules/`, (initialId, subId) => `/api/v1/courses/${initialId}/modules/${subId}/items`), // getModuleItems
-        // `/api/v1/courses/${course.id}/assignments`, // getAssignments
-        // // `/api/v1/courses/${course.id}/pages`, // listPages
-        // `/api/v1/courses/${course.id}/modules`, // listModules
-        // `/api/v1/courses/${course.id}/quizzes`, // getQuizzes
-        // `/api/v1/courses/${course.id}/discussion_topics`, // getDiscussionTopics (aka discussion boards)
-        // ...await getSubItems(course.id, 'url', (initialId) => `/api/v1/courses/${initialId}/pages`, (initialId, subId) => `/api/v1/courses/${initialId}/pages/${subId}`),
+        `/api/v1/courses/${course.id}/modules`, // listModules
+        ...await getSubItems(course.id, 'id', (initialId) => `/api/v1/courses/${initialId}/modules/`, (initialId, subId) => `/api/v1/courses/${initialId}/modules/${subId}/items`), // getModuleItems
+        `/api/v1/courses/${course.id}/assignments`, // getAssignments
+        // `/api/v1/courses/${course.id}/pages`, // listPages
+        `/api/v1/courses/${course.id}/quizzes`, // getQuizzes
+        `/api/v1/courses/${course.id}/discussion_topics`, // getDiscussionTopics (aka discussion boards)
+        ...await getSubItems(course.id, 'url', (initialId) => `/api/v1/courses/${initialId}/pages`, (initialId, subId) => `/api/v1/courses/${initialId}/pages/${subId}`), // page details
         // ...await getSubItems(course.id, 'id', (initialId) => `/api/v1/courses/${initialId}/quizzes`, (initialId, subId) => `/api/v1/courses/${initialId}/quizzes/${subId}/questions`), // getQuizQuestions
-        // `api/v1/courses/${course.id}/discussion_topics`
-        `api/v1/courses/${course.id}/tabs`
+        // `api/v1/courses/${course.id}/tabs`
     ];
     
     // Core: Search, scan, report
@@ -58,7 +57,20 @@ module.exports = async function getCourseItems(course, searchPhrase) {
 
     // If no matches were found in this course, tag the outputTemplate
     // onto the output so that the course is represented on the output
-    if (allMatches.length === 0) allMatches.push(makeOutputObject(course, {}, {path:[], match:''}, searchPhrase, ''));
+    if (allMatches.length === 0) 
+        allMatches.push(makeOutputObject(course, {}, {path:[], match:''}, searchPhrase, ''));
 
     return allMatches;
 };
+
+// function getContentParallel (canvasApiCalls)
+// {
+//     var promises = [];
+//     promises = canvasApiCalls.map(apiCall => getContentParallel(apiCall))
+
+// }
+
+// async function getContentPromises(apiCall)
+// {
+    
+// }

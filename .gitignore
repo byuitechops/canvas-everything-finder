@@ -4,4 +4,5 @@ steps.js
 canvas-api-wrapper-class.js
 temp*
 *.csv
+/reports/*.json
 *.xlsx

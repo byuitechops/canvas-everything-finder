@@ -12,6 +12,7 @@
   "dependencies": {
     "async": "^2.6.1",
     "canvas-api-wrapper": "^3.3.4",
+    "canvas-get-scaled-courses": "git+https://github.com/byuitechops/canvas-get-scaled-courses.git",
     "d3-dsv": "^1.0.10",
     "inquirer": "^6.2.0"
   }

@@ -20,8 +20,23 @@ module.exports = function getListOfCourses(inputType, pieceOfData) {
 
     // Get course name, id, and code from an api call
     async function getCoursesFromApi (accountNumber) {
-        var courses = await canvas.get(`/api/v1/accounts/${accountNumber}/courses`);
+        var courses = await canvas.get(`/api/v1/accounts/${accountNumber}/courses?`);
         return courses.map( course => limitObjectKeys(course, outputKeys) );
+    }
+
+    async function getCoursesFromHardCodedFunction (ghostVar) {         
+        var subAccounts = [
+        {
+            name: `campusScaled`,
+            id: 48
+        }];
+        var terms = [{
+            name: "Winter 2019",
+            id: 93
+        }];
+
+        var stuff = require('canvas-get-scaled-courses');
+        return await stuff(subAccounts, terms);
     }
 
     // If new keys need to be included, just add them to the outputKeys array.
@@ -30,6 +45,7 @@ module.exports = function getListOfCourses(inputType, pieceOfData) {
     var getCourses = {
         fromCsv: getCoursesFromCsv,
         fromApi: getCoursesFromApi,
+        fromHardCodedFunction : getCoursesFromHardCodedFunction
     };
 
     return getCourses[inputType](pieceOfData);

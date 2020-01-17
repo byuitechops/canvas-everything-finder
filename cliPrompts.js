@@ -10,11 +10,13 @@ const subdomains = {
 const inputType = {
     accountNumber: 'Account Number',
     csvInput: 'CSV Input',
+    hardCodedFunction: 'Hard Coded Function',
 };
 
 const inputTypeAnswerTransformer = {
     [inputType.accountNumber]: 'fromApi',
     [inputType.csvInput]: 'fromCsv',
+    [inputType.hardCodedFunction]: 'fromHardCodedFunction',
 };
 
 function inquirerObjectToArray (answersHash, object) {

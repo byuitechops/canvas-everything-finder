@@ -19,6 +19,7 @@ async function main() {
     var queueLimit = 10;
     var courseCounter = 0;
     var userInput = await cli();
+    userInput.searchPhrase = (value) => /<iframe[\w\W\n]*?kaltura\.com[\w\W\n]*?<\/iframe>/gi.test(value);
     // repeatOnInterval([getMemoryStats], 5000); // Start Tracking Memory Usage
     var courseList = await getCourses(userInput.inputType, userInput.courseData);
     // courseList = courseList.slice(0,10)
@@ -42,14 +43,15 @@ async function main() {
     await promiseQueueLimit(courseList, getMatchesAdapter, queueLimit, closingSteps);
 
     function closingSteps (err, matches) {
+        fs.writeFileSync(`${userInput.saveLocation}.json`, JSON.stringify(arguments[2],null,4));
         matches = matches.map(match => {
             if (match.item.external_tool_tag_attributes === undefined) match.item.external_tool_tag_attributes = {}
-            let externalToolItems = {};
+            let items = {};
             if (match.matchData.path !== null && match.matchData.path !== undefined) {
                 debugger;
                 try {
                     let matchObjectPath = match.matchData.path.slice(0,-1);
-                    externalToolItems = objectCrawler(match.item, matchObjectPath) || {};
+                    items = objectCrawler(match.item, matchObjectPath) || {};
                 } catch (e) {
                     console.error(e);
                 }
@@ -63,9 +65,9 @@ async function main() {
                 'item.name': match.item.name,
                 'item.items_url': match.item.items_url,
 
-                'item.items.content_id':   externalToolItems.content_id,
-                'item.items.title':        externalToolItems.title,
-                'item.items.external_url': externalToolItems.external_url,
+                'item.items.content_id':   items.id,
+                'item.items.title':        items.title,
+                'item.items.external_url': items.external_url,
 
                 'item.external_tool_tag_attributes.url': match.item.external_tool_tag_attributes.url,
 
