@@ -21,6 +21,7 @@ async function main() {
     var userInput = await cli();
     // repeatOnInterval([getMemoryStats], 5000); // Start Tracking Memory Usage
     var courseList = await getCourses(userInput.inputType, userInput.courseData);
+    // courseList = courseList.slice(0,10)
 
     console.log(`\nYou have found ${courseList.length} courses!\n`);
 
@@ -41,8 +42,18 @@ async function main() {
     await promiseQueueLimit(courseList, getMatchesAdapter, queueLimit, closingSteps);
 
     function closingSteps (err, matches) {
-        debugger;
         matches = matches.map(match => {
+            if (match.item.external_tool_tag_attributes === undefined) match.item.external_tool_tag_attributes = {}
+            let externalToolItems = {};
+            if (match.matchData.path !== null && match.matchData.path !== undefined) {
+                debugger;
+                try {
+                    let matchObjectPath = match.matchData.path.slice(0,-1);
+                    externalToolItems = objectCrawler(match.item, matchObjectPath) || {};
+                } catch (e) {
+                    console.error(e);
+                }
+            }
             return {
                 'course.id': match.course.id,
                 'course.course_code': match.course.course_code,
@@ -52,9 +63,11 @@ async function main() {
                 'item.name': match.item.name,
                 'item.items_url': match.item.items_url,
 
-                'item.items.content_id': objectCrawler(match.item, match.matchData.path.slice(0,-1),).content_id,
-                'item.items.title': objectCrawler(match.item, match.matchData.path.slice(0,-1),).title,
-                'item.items.external_url': objectCrawler(match.item, match.matchData.path.slice(0,-1),).external_url,
+                'item.items.content_id':   externalToolItems.content_id,
+                'item.items.title':        externalToolItems.title,
+                'item.items.external_url': externalToolItems.external_url,
+
+                'item.external_tool_tag_attributes.url': match.item.external_tool_tag_attributes.url,
 
                 'matchData.match': match.matchData.match,
                 'matchData.path': JSON.stringify(match.matchData.path),

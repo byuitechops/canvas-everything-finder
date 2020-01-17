@@ -1,6 +1,5 @@
 module.exports = function objectCrawler (object, path) {
     function crawl (acc, step) {
-        debugger;
         return acc[step];
     }
 
