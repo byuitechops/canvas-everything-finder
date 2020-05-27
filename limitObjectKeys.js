@@ -19,12 +19,15 @@ module.exports = function limitObjectKeysWrapper (object = {}, keysToKeep = []) 
         }, {} );
     } 
     
+    // If keysToKeep is an empty array, do not limit the keys at all.
+    if (Array.isArray(keysToKeep) && keysToKeep.length > 0)
+        return object;
     // Make sure we are limiting keys on an object or array
     if (object === null || typeof object !== 'object')
         object = {[object]: object}; // If not implicitly convert the value to an object
     // Make sure the keys to keep come in the form of an array
     if ( !Array.isArray(keysToKeep) )
-        throw 'in limitObjectKeys, the second parameter must be an array'; 
+        throw 'in limitObjectKeys, the second parameter must be an array';
     
     return limitObjectKeys  (object, keysToKeep);
     return specifyObjectKeys(object, keysToKeep);

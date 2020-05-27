@@ -6,43 +6,15 @@ const path = require('path');
 const canvas = require('canvas-api-wrapper');
 const deepSearch = require('./deepSearch.js');
 const limitObjectKeys = require('./limitObjectKeys.js');
-
-function makeOutputObject(courseObject, itemObject, matchData, searchPhrase, apiCall, message = '') {
-    return {
-        course: courseObject,
-        item: itemObject,
-        matchData: matchData,
-        searchPhrase: searchPhrase,
-        apiCall: apiCall,
-        message: message,
-    };
-}
-
-async function getSubItems(initialId, subItemKey, initialApiCall, secondaryApiCall) {
-    let courseItems = await canvas.get(initialApiCall(initialId));
-    let apiCalls = courseItems.map((item) => secondaryApiCall(initialId, item[subItemKey]));
-    return apiCalls;
-}
-
+const settings = require('./settings.js');
 
 module.exports = async function getCourseItems(course, searchPhrase) {
     // Define API Calls Here. Listed as an object to have readable named values
-    var canvasApiCalls = [
-        // `/api/v1/courses/${course.id}/modules/?include[]=items`,
-        `/api/v1/courses/${course.id}/modules`, // listModules
-        ...await getSubItems(course.id, 'id', (initialId) => `/api/v1/courses/${initialId}/modules/`, (initialId, subId) => `/api/v1/courses/${initialId}/modules/${subId}/items`), // getModuleItems
-        `/api/v1/courses/${course.id}/assignments`, // getAssignments
-        `/api/v1/courses/${course.id}/pages`, // listPages
-        `/api/v1/courses/${course.id}/quizzes`, // getQuizzes
-        `/api/v1/courses/${course.id}/discussion_topics`, // getDiscussionTopics (aka discussion boards)
-        ...await getSubItems(course.id, 'url', (initialId) => `/api/v1/courses/${initialId}/pages`, (initialId, subId) => `/api/v1/courses/${initialId}/pages/${subId}`), // page details
-        // ...await getSubItems(course.id, 'id', (initialId) => `/api/v1/courses/${initialId}/quizzes`, (initialId, subId) => `/api/v1/courses/${initialId}/quizzes/${subId}/questions`), // getQuizQuestions
-        // `api/v1/courses/${course.id}/tabs`
-    ];
+    var canvasApiCalls = settings.customCourseScope(course);
     
     // Core: Search, scan, report
     var allMatches = [];
-    var outputKeys = ['id', 'name', 'items_url', 'items', 'external_tool_tag_attributes'];
+    var outputKeys = settings.limitCustomCourseScopeKeys;
     for (let apiCall in canvasApiCalls) { // for in opted for to avoid having to do: promise.all(array.method(async () => {} ))
         let response = await canvas.get(canvasApiCalls[apiCall]);
         let canvasData = Array.isArray(response) ? response : [response];
@@ -58,19 +30,18 @@ module.exports = async function getCourseItems(course, searchPhrase) {
     // If no matches were found in this course, tag the outputTemplate
     // onto the output so that the course is represented on the output
     if (allMatches.length === 0) 
-        allMatches.push(makeOutputObject(course, {}, {path:[], match:''}, searchPhrase, ''));
+        allMatches.push(makeOutputObject(course, {}, {path:[], match:''}, searchPhrase, '', 'No Matches Found'));
 
     return allMatches;
 };
 
-// function getContentParallel (canvasApiCalls)
-// {
-//     var promises = [];
-//     promises = canvasApiCalls.map(apiCall => getContentParallel(apiCall))
-
-// }
-
-// async function getContentPromises(apiCall)
-// {
-    
-// }
+function makeOutputObject(courseObject, itemObject, matchData, searchPhrase, apiCall, message = '') {
+    return {
+        course: courseObject,
+        item: itemObject,
+        matchData: matchData,
+        searchPhrase: searchPhrase,
+        apiCall: apiCall,
+        message: message,
+    };
+}

@@ -43,41 +43,10 @@ async function main() {
     await promiseQueueLimit(courseList, getMatchesAdapter, queueLimit, closingSteps);
 
     function closingSteps (err, matches) {
+        // Backup your raw results in case this doesn't work
         fs.writeFileSync(`${userInput.saveLocation}.json`, JSON.stringify(arguments[2],null,4));
-        matches = matches.map(match => {
-            if (match.item.external_tool_tag_attributes === undefined) match.item.external_tool_tag_attributes = {}
-            let items = {};
-            if (match.matchData.path !== null && match.matchData.path !== undefined) {
-                debugger;
-                try {
-                    let matchObjectPath = match.matchData.path.slice(0,-1);
-                    items = objectCrawler(match.item, matchObjectPath) || {};
-                } catch (e) {
-                    console.error(e);
-                }
-            }
-            return {
-                'course.id': match.course.id,
-                'course.course_code': match.course.course_code,
-                'course.name': match.course.name,
-                'course.sis_course_id': match.course.sis_course_id,
-                'item.id': match.item.id,
-                'item.name': match.item.name,
-                'item.items_url': match.item.items_url,
-
-                'item.items.content_id':   items.id,
-                'item.items.title':        items.title,
-                'item.items.external_url': items.external_url,
-
-                'item.external_tool_tag_attributes.url': match.item.external_tool_tag_attributes.url,
-
-                'matchData.match': match.matchData.match,
-                'matchData.path': JSON.stringify(match.matchData.path),
-                'apiCall': match.apiCall,
-                'message': match.message,
-                'searchPhrase': match.searchPhrase,
-            };
-        });
+        // Preps the json data for CSV serialization
+        matches =  require('./settings.js').prepResultsForCSV(matches);
         var csvFormatted = d3.csvFormat(matches);
 
         fs.writeFileSync(userInput.saveLocation, csvFormatted);
