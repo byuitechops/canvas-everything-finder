@@ -11,6 +11,7 @@ const objectCrawler = require('./objectCrawler.js');
 const getMemoryStats = require('./getMemoryStats.js');
 const promiseQueueLimit = require('./promiseQueueLimit.js');
 const repeatOnInterval = require('./repeatOnInterval.js');
+const settings = require('./settings.js');
 
 
 
@@ -19,7 +20,7 @@ async function main() {
     var queueLimit = 10;
     var courseCounter = 0;
     var userInput = await cli();
-    userInput.searchPhrase = (value) => /http[s]?:\/\/(?:[a-z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-f][0-9a-f]))+/gi.test(value);
+    userInput.searchPhrase = settings.getSearchPhraseFunction(userInput.searchPhrase);
     // repeatOnInterval([getMemoryStats], 5000); // Start Tracking Memory Usage
     var courseList = await getCourses(userInput.inputType, userInput.courseData);
     // courseList = courseList.slice(0,10)
@@ -46,7 +47,7 @@ async function main() {
         // Backup your raw results in case this doesn't work
         fs.writeFileSync(`${userInput.saveLocation}.json`, JSON.stringify(arguments[2],null,4));
         // Preps the json data for CSV serialization
-        matches =  require('./settings.js').prepResultsForCSV(matches);
+        matches =  settings.prepResultsForCSV(matches);
         var csvFormatted = d3.csvFormat(matches);
 
         fs.writeFileSync(userInput.saveLocation, csvFormatted);

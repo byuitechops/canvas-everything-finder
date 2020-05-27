@@ -1,8 +1,9 @@
 module.exports = {
     customCourseList,
+    getSearchPhraseFunction,
     customCourseScope,
     limitCustomCourseScopeKeys,
-    prepResultsForCSV
+    prepResultsForCSV,
 };
 
 /**************************************************************
@@ -41,6 +42,20 @@ async function customCourseList (canvas) {
 
     // var stuff = require('canvas-get-scaled-courses');
     // return await stuff(subAccounts, terms);
+}
+
+/**************************************************************
+ *  takes in: the original search phrase recieved from main / the cli
+ *  Used to:  define a function that specifies how to determine 
+ *            whether a match was while searching canvas.
+ *            If you want to search for the phrase provided exactly,
+ *            simply return the searchPhrase parameter.
+ *  returns:  a function that returns true or false or a string
+ **************************************************************/
+function getSearchPhraseFunction (searchPhrase) 
+{
+    return (value) => /http[s]?:\/\/(?:[a-z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-f][0-9a-f]))+/gi.test(value)
+    // return searchPhrase;
 }
 
 /**************************************************************
