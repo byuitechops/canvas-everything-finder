@@ -19,7 +19,7 @@ async function main() {
     var queueLimit = 10;
     var courseCounter = 0;
     var userInput = await cli();
-    userInput.searchPhrase = (value) => /<iframe[\w\W\n]*?kaltura\.com[\w\W\n]*?<\/iframe>/gi.test(value);
+    userInput.searchPhrase = (value) => /http[s]?:\/\/(?:[a-z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-f][0-9a-f]))+/gi.test(value);
     // repeatOnInterval([getMemoryStats], 5000); // Start Tracking Memory Usage
     var courseList = await getCourses(userInput.inputType, userInput.courseData);
     // courseList = courseList.slice(0,10)

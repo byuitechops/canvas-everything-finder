@@ -25,19 +25,37 @@ module.exports = function getListOfCourses(inputType, pieceOfData) {
     }
 
     async function getCoursesFromHardCodedFunction (ghostVar) {         
-        var subAccounts = [
-        {
-            name: `campusScaled`,
-            id: 48
-        }];
-        var terms = [{
-            name: "Winter 2019",
-            id: 93
-        }];
-
-        var stuff = require('canvas-get-scaled-courses');
-        return await stuff(subAccounts, terms);
+        var courses = [
+            10171, // AGBUS 105 OM
+            2794,  // AUTO  125 OM
+            11998, // BUS   115 OM
+            19244, // CONST 221 OM
+            11525, // CS    101 OM
+            10150, // FAML  160 OM
+            10178, // HS    240 OM
+            16397, // HTMBC 110 OM
+            32620, // REL   261 OM
+            11480, // SMMBC 105 OM
+            10153, // TESOL 101 OM
+            52042, // WDD   130 OM
+        ];
+        courses = await Promise.all(courses.map(async cid => await canvas.get(`/api/v1/courses/${cid}?`) ));
+        return courses;
     }
+    // async function getCoursesFromHardCodedFunction (ghostVar) {         
+    //     var subAccounts = [
+    //     {
+    //         name: `campusScaled`,
+    //         id: 48
+    //     }];
+    //     var terms = [{
+    //         name: "Winter 2019",
+    //         id: 93
+    //     }];
+
+    //     var stuff = require('canvas-get-scaled-courses');
+    //     return await stuff(subAccounts, terms);
+    // }
 
     // If new keys need to be included, just add them to the outputKeys array.
     var outputKeys = ['name', 'id', 'course_code', 'sis_course_id'];

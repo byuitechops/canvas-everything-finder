@@ -32,7 +32,7 @@ module.exports = async function getCourseItems(course, searchPhrase) {
         `/api/v1/courses/${course.id}/modules`, // listModules
         ...await getSubItems(course.id, 'id', (initialId) => `/api/v1/courses/${initialId}/modules/`, (initialId, subId) => `/api/v1/courses/${initialId}/modules/${subId}/items`), // getModuleItems
         `/api/v1/courses/${course.id}/assignments`, // getAssignments
-        // `/api/v1/courses/${course.id}/pages`, // listPages
+        `/api/v1/courses/${course.id}/pages`, // listPages
         `/api/v1/courses/${course.id}/quizzes`, // getQuizzes
         `/api/v1/courses/${course.id}/discussion_topics`, // getDiscussionTopics (aka discussion boards)
         ...await getSubItems(course.id, 'url', (initialId) => `/api/v1/courses/${initialId}/pages`, (initialId, subId) => `/api/v1/courses/${initialId}/pages/${subId}`), // page details
