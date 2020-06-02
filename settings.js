@@ -72,6 +72,8 @@ function getSearchPhraseFunction (searchPhrase)
     // might have to shorten url part of this value to UUID
     var harvardUuid = harvardLinks.map((linkCsvRow) => /* TODO */ undefined);
 
+    console.log("I'm reading the CSV right now.");
+
     return (value) => harvardLinks.some(link => value.contains(link));
     
     // return (value) => /http[s]?:\/\/(?:[a-z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-f][0-9a-f]))+/gi.test(value)
