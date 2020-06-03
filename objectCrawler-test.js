@@ -2,8 +2,7 @@ const objectCrawler = require('./objectCrawler.js');
 
 let path = [
     "hi",
-    "3",
-    "meep",
+    3
 ];
 
 let obj = {

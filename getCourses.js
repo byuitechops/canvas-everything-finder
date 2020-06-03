@@ -38,5 +38,5 @@ module.exports = function getListOfCourses(inputType, pieceOfData) {
         fromHardCodedFunction : getCoursesFromHardCodedFunction
     };
 
-    return getCourses[inputType](pieceOfData);
+    return getCourses[`${inputType}`](pieceOfData);
 };

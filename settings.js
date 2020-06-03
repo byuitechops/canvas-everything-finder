@@ -6,6 +6,11 @@ module.exports = {
     prepResultsForCSV,
 };
 
+const fs = require('fs');
+const path = require('path');
+const d3 = require('d3-dsv');
+const canvas = require('canvas-api-wrapper');
+
 /**************************************************************
  *  Used in:  the getCoursesFromHardCodedFunction function.
  *  Used to:  programatically get a specific list of courses to
@@ -42,16 +47,22 @@ async function customCourseList (canvas) {
 
     // var stuff = require('canvas-get-scaled-courses');
     // return await stuff(subAccounts, terms);
-    var apiCalls = [
-        `/api/v1/accounts/1/courses?sort=sis_course_id&order=asc&search_by=course&include%5B%5D=subaccount&enrollment_term_id=5&include[]=term`,  // Online Master
-        `/api/v1/accounts/1/courses?sort=sis_course_id&order=asc&search_by=course&include%5B%5D=subaccount&enrollment_term_id=95&include[]=term`, // Spring 2020
-        `/api/v1/accounts/1/courses?sort=sis_course_id&order=asc&search_by=course&include%5B%5D=subaccount&enrollment_term_id=93&include[]=term`, // Winter 2020
-        `/api/v1/accounts/1/courses?sort=sis_course_id&order=asc&search_by=course&include%5B%5D=subaccount&enrollment_term_id=89&include[]=term`  // Fall 2019
-    ];
-    var courses = await Promise.all(apiCalls.reduce(async (acc, url) => acc.concat(await canvas.get(url)), []));
-    var nonArchivedCourses = courses.filter(course => course.subaccount_name !== "Archived");
 
-    return nonArchivedCourses.slice(0,3);
+    // var courses = await Promise.all([
+    //     canvas.get(`/api/v1/accounts/1/courses?sort=sis_course_id&order=asc&search_by=course&include%5B%5D=subaccount&enrollment_term_id=5&include[]=term`),  // Online Master
+    //     canvas.get(`/api/v1/accounts/1/courses?sort=sis_course_id&order=asc&search_by=course&include%5B%5D=subaccount&enrollment_term_id=95&include[]=term`), // Spring 2020
+    //     canvas.get(`/api/v1/accounts/1/courses?sort=sis_course_id&order=asc&search_by=course&include%5B%5D=subaccount&enrollment_term_id=93&include[]=term`), // Winter 2020
+    //     canvas.get(`/api/v1/accounts/1/courses?sort=sis_course_id&order=asc&search_by=course&include%5B%5D=subaccount&enrollment_term_id=89&include[]=term`)  // Fall 2019
+    // ]);
+
+    // var nonArchivedCourses = courses.flat().filter(course => course.subaccount_name !== "Archived");
+
+    // console.log(nonArchivedCourses.length);
+
+    // return nonArchivedCourses.slice(0,3);
+
+    var nonArchivedCourse = await canvas.get('api/v1/courses/18624'); // COMM 250
+    return [nonArchivedCourse];
 }
 
 /**************************************************************
@@ -65,16 +76,19 @@ async function customCourseList (canvas) {
 
 function getSearchPhraseFunction (searchPhrase) 
 {
-    var harvardLinksFileLocation = path.resolve('/* Put stuff here */');
-    var csvString = fs.readFileSync(harvardLinksFileLocation);
-    var harvardLinks = d3.csvParse(csvString);
+    var harvardLinks = d3.csvParse(fs.readFileSync(path.resolve('./HBCS_Export_2020-06-02.csv'), 'utf-8'));
 
     // might have to shorten url part of this value to UUID
     var harvardUuid = harvardLinks.map((linkCsvRow) => /* TODO */ undefined);
 
-    console.log("I'm reading the CSV right now.");
+    console.log(`Assets: ${harvardLinks.length}`);
 
-    return (value) => harvardLinks.some(link => value.contains(link));
+    return (value) => harvardLinks.some(row => {
+        if(String(value).includes(row["Item ID"])) return true;
+        // else if (String(value).includes(row["Item Name"])) return true;
+        else if(String(value).includes(row["Attachment"])) return true;
+        else return false;
+    });
     
     // return (value) => /http[s]?:\/\/(?:[a-z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-f][0-9a-f]))+/gi.test(value)
     // return searchPhrase;
@@ -100,7 +114,7 @@ async function customCourseScope (course) {
         // ...await getSubItems(course.id, 'id', (initialId) => `/api/v1/courses/${initialId}/quizzes`, (initialId, subId) => `/api/v1/courses/${initialId}/quizzes/${subId}/questions`), // getQuizQuestions
         // `api/v1/courses/${course.id}/tabs`
     ];
-    return canvasApiCalls();
+    return canvasApiCalls;
 
     // this is hoisted and is meant to be private, so it's fine here
     async function getSubItems(initialId, subItemKey, initialApiCall, secondaryApiCall) {
@@ -116,13 +130,15 @@ async function customCourseScope (course) {
  *           during runtime.
  * To limit no keys, use an empty array.
  **************************************************************/
-var limitCustomCourseScopeKeys = [
-    'id',
-    'name',
-    'items_url',
-    'items',
-    'external_tool_tag_attributes',
-];
+function limitCustomCourseScopeKeys() {
+    return [
+        'id',
+        'name',
+        'items_url',
+        'items',
+        'external_tool_tag_attributes',
+    ];
+}
 
 /**************************************************************
  *  takes in: a list of all the results found
@@ -130,7 +146,8 @@ var limitCustomCourseScopeKeys = [
  *  returns:  a javascript object in a csv friendly format
  **************************************************************/
 function prepResultsForCSV (matches) {
-    matches = matches.map(match => {
+    const objectCrawler = require('./objectCrawler');
+    return matches.map(match => {
         // This preps the object so that the csv object wont throw.
         if (match.item.external_tool_tag_attributes === undefined) match.item.external_tool_tag_attributes = {}
         let items = {};
@@ -162,7 +179,7 @@ function prepResultsForCSV (matches) {
             'matchData.path': JSON.stringify(match.matchData.path),
             'apiCall': match.apiCall,
             'message': match.message,
-            'searchPhrase': match.searchPhrase,
+            // 'searchPhrase': match.searchPhrase,
         };
     });
 }

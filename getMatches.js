@@ -10,11 +10,11 @@ const settings = require('./settings.js');
 
 module.exports = async function getCourseItems(course, searchPhrase) {
     // Define API Calls Here. Listed as an object to have readable named values
-    var canvasApiCalls = settings.customCourseScope(course);
+    var canvasApiCalls = await settings.customCourseScope(course);
     
     // Core: Search, scan, report
     var allMatches = [];
-    var outputKeys = settings.limitCustomCourseScopeKeys;
+    var outputKeys = settings.limitCustomCourseScopeKeys();
     for (let apiCall in canvasApiCalls) { // for in opted for to avoid having to do: promise.all(array.method(async () => {} ))
         let response = await canvas.get(canvasApiCalls[apiCall]);
         let canvasData = Array.isArray(response) ? response : [response];

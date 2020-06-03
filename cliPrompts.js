@@ -95,7 +95,7 @@ module.exports = [
         type: 'input',
         message: 'Where to save your csv? (Default: ./reports/report.csv)'.padEnd(padding),
         suffix: ':',
-        default: './reports/report.csv',
+        default: './reports/report',
         filter: (input) => path.resolve(input)
     },
 ];

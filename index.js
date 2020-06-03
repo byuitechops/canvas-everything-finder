@@ -19,7 +19,12 @@ const settings = require('./settings.js');
 async function main() {
     var queueLimit = 10;
     var courseCounter = 0;
-    var userInput = await cli();
+    // var userInput = await cli();
+    var userInput = {
+        searchPhase: '',
+        inputType: 'fromHardCodedFunction',
+        saveLocation: './reports/report'
+    };
     userInput.searchPhrase = settings.getSearchPhraseFunction(userInput.searchPhrase);
     // repeatOnInterval([getMemoryStats], 5000); // Start Tracking Memory Usage
     var courseList = await getCourses(userInput.inputType, userInput.courseData);
@@ -35,6 +40,7 @@ async function main() {
                     resolve(matchData);
                 })
                 .catch((error) => {
+                    console.error(error);
                     console.log(`${++courseCounter}/${courseList.length}, ${course['name']} Completed`);
                     reject({ course: course, item: {}, matchData: {}, searchPhrase: userInput.searchPhase, apiCall: '', message: error });
                 });
@@ -45,12 +51,12 @@ async function main() {
 
     function closingSteps (err, matches) {
         // Backup your raw results in case this doesn't work
-        fs.writeFileSync(`${userInput.saveLocation}.json`, JSON.stringify(arguments[2],null,4));
+        fs.writeFileSync(`${userInput.saveLocation}.json`, JSON.stringify(matches,null,4));
         // Preps the json data for CSV serialization
-        matches =  settings.prepResultsForCSV(matches);
-        var csvFormatted = d3.csvFormat(matches);
+        var csvMatches = settings.prepResultsForCSV(matches);
+        var csvFormatted = d3.csvFormat(csvMatches);
 
-        fs.writeFileSync(userInput.saveLocation, csvFormatted);
+        fs.writeFileSync(`${userInput.saveLocation}.csv`, csvFormatted);
 
         console.log('THE PROGRAM HAS FINISHED RUNNING. YOU CAN NOW SAFELY EXIT');
     }
