@@ -48,21 +48,21 @@ async function customCourseList (canvas) {
     // var stuff = require('canvas-get-scaled-courses');
     // return await stuff(subAccounts, terms);
 
-    // var courses = await Promise.all([
-    //     canvas.get(`/api/v1/accounts/1/courses?sort=sis_course_id&order=asc&search_by=course&include%5B%5D=subaccount&enrollment_term_id=5&include[]=term`),  // Online Master
-    //     canvas.get(`/api/v1/accounts/1/courses?sort=sis_course_id&order=asc&search_by=course&include%5B%5D=subaccount&enrollment_term_id=95&include[]=term`), // Spring 2020
-    //     canvas.get(`/api/v1/accounts/1/courses?sort=sis_course_id&order=asc&search_by=course&include%5B%5D=subaccount&enrollment_term_id=93&include[]=term`), // Winter 2020
-    //     canvas.get(`/api/v1/accounts/1/courses?sort=sis_course_id&order=asc&search_by=course&include%5B%5D=subaccount&enrollment_term_id=89&include[]=term`)  // Fall 2019
-    // ]);
+    var courses = await Promise.all([
+        canvas.get(`/api/v1/accounts/1/courses?sort=sis_course_id&order=asc&search_by=course&include%5B%5D=subaccount&enrollment_term_id=5&include[]=term`),  // Online Master
+        canvas.get(`/api/v1/accounts/1/courses?sort=sis_course_id&order=asc&search_by=course&include%5B%5D=subaccount&enrollment_term_id=95&include[]=term`), // Spring 2020
+        canvas.get(`/api/v1/accounts/1/courses?sort=sis_course_id&order=asc&search_by=course&include%5B%5D=subaccount&enrollment_term_id=93&include[]=term`), // Winter 2020
+        canvas.get(`/api/v1/accounts/1/courses?sort=sis_course_id&order=asc&search_by=course&include%5B%5D=subaccount&enrollment_term_id=89&include[]=term`)  // Fall 2019
+    ]);
 
-    // var nonArchivedCourses = courses.flat().filter(course => course.subaccount_name !== "Archived");
+    var nonArchivedCourses = courses.flat().filter(course => course.subaccount_name !== "Archived");
 
-    // console.log(nonArchivedCourses.length);
+    console.log(nonArchivedCourses.length);
 
-    // return nonArchivedCourses.slice(0,3);
+    return nonArchivedCourses;
 
-    var nonArchivedCourse = await canvas.get('api/v1/courses/18624'); // COMM 250
-    return [nonArchivedCourse];
+    // var nonArchivedCourse = await canvas.get('api/v1/courses/18624'); // COMM 250
+    // return [nonArchivedCourse];
 }
 
 /**************************************************************
@@ -84,9 +84,15 @@ function getSearchPhraseFunction (searchPhrase)
     console.log(`Assets: ${harvardLinks.length}`);
 
     return (value) => harvardLinks.some(row => {
-        if(String(value).includes(row["Item ID"])) return true;
+        if(String(value).includes(row["Item ID"])) {
+            // console.log(`Harvard Link ID: '${row["Item ID"]}' matched ${value}`);
+            return true;
+        }
         // else if (String(value).includes(row["Item Name"])) return true;
-        else if(String(value).includes(row["Attachment"])) return true;
+        else if(String(value).includes(row["Attachment"]) && row["Attachment"] != "" && row["Attachment"] != null) {
+            // console.log(`Harvard Attachment: '${row["Attachment"]}' matched ${value}`);
+            return true;
+        } 
         else return false;
     });
     
@@ -175,7 +181,7 @@ function prepResultsForCSV (matches) {
 
             'item.external_tool_tag_attributes.url': match.item.external_tool_tag_attributes.url,
 
-            'matchData.match': match.matchData.match,
+            'matchData.match': match.matchData.match.replace(/\r?\n|\r/g, ''),
             'matchData.path': JSON.stringify(match.matchData.path),
             'apiCall': match.apiCall,
             'message': match.message,
