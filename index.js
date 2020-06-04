@@ -19,12 +19,12 @@ const settings = require('./settings.js');
 async function main() {
     var queueLimit = 10;
     var courseCounter = 0;
-    // var userInput = await cli();
-    var userInput = {
-        searchPhase: '',
-        inputType: 'fromHardCodedFunction',
-        saveLocation: './reports/report'
-    };
+    var userInput = await cli();
+    // var userInput = {
+    //     searchPhase: '',
+    //     inputType: 'fromHardCodedFunction',
+    //     saveLocation: './reports/report'
+    // };
     userInput.searchPhrase = settings.getSearchPhraseFunction(userInput.searchPhrase);
     // repeatOnInterval([getMemoryStats], 5000); // Start Tracking Memory Usage
     var courseList = await getCourses(userInput.inputType, userInput.courseData);
