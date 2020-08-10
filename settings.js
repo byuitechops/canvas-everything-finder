@@ -49,9 +49,9 @@ async function customCourseList (canvas) {
     // return await stuff(subAccounts, terms);
 
     var courses = await Promise.all([
-        canvas.get(`/api/v1/accounts/1/courses?sort=sis_course_id&order=asc&search_by=course&include%5B%5D=subaccount&enrollment_term_id=5&include[]=term`),  // Online Master
-        canvas.get(`/api/v1/accounts/1/courses?sort=sis_course_id&order=asc&search_by=course&include%5B%5D=subaccount&enrollment_term_id=95&include[]=term`), // Spring 2020
-        canvas.get(`/api/v1/accounts/1/courses?sort=sis_course_id&order=asc&search_by=course&include%5B%5D=subaccount&enrollment_term_id=93&include[]=term`), // Winter 2020
+        // canvas.get(`/api/v1/accounts/1/courses?sort=sis_course_id&order=asc&search_by=course&include%5B%5D=subaccount&enrollment_term_id=5&include[]=term`)  // Online Master
+        // canvas.get(`/api/v1/accounts/1/courses?sort=sis_course_id&order=asc&search_by=course&include%5B%5D=subaccount&enrollment_term_id=95&include[]=term`), // Spring 2020
+        // canvas.get(`/api/v1/accounts/1/courses?sort=sis_course_id&order=asc&search_by=course&include%5B%5D=subaccount&enrollment_term_id=93&include[]=term`), // Winter 2020
         canvas.get(`/api/v1/accounts/1/courses?sort=sis_course_id&order=asc&search_by=course&include%5B%5D=subaccount&enrollment_term_id=89&include[]=term`)  // Fall 2019
     ]);
 
@@ -153,7 +153,7 @@ function limitCustomCourseScopeKeys() {
  **************************************************************/
 function prepResultsForCSV (matches) {
     const objectCrawler = require('./objectCrawler');
-    return matches.map(match => {
+    return matches.map((match, i) => {
         // This preps the object so that the csv object wont throw.
         if (match.item.external_tool_tag_attributes === undefined) match.item.external_tool_tag_attributes = {}
         let items = {};
@@ -181,7 +181,7 @@ function prepResultsForCSV (matches) {
 
             'item.external_tool_tag_attributes.url': match.item.external_tool_tag_attributes.url,
 
-            'matchData.match': match.matchData.match.replace(/\r?\n|\r/g, ''),
+            'matchData.match': match.matchData.match ? match.matchData.match.replace(/\r?\n|\r/g, '') : '',
             'matchData.path': JSON.stringify(match.matchData.path),
             'apiCall': match.apiCall,
             'message': match.message,
